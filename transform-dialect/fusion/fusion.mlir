@@ -59,7 +59,7 @@ func.func private @microkernel(
     %init: tensor<4x4xf32>,
     %output: tensor<4x4xf32>) -> tensor<4x4xf32>
 
-module attributes {transform.with_named_sequence} {
+module attributes {transform.with_named_sequence} {  
   transform.named_sequence @__transform_main(
       %arg0: !transform.any_op,
       %arg1: !transform.op<"linalg.matmul">,
@@ -80,7 +80,7 @@ module attributes {transform.with_named_sequence} {
     // to define the value used within the loop, so the order of such fusions
     // is important. We could also use "transform.merge_handles" to obtain
     // a single handle to all operations and give it to `fuse_into_containing_op`
-    // that would take care of the ordering in this case.
+    // that would take care of the ordering in this case
     %add_fused, %loop2 = transform.structured.fuse_into_containing_op %add into %loop
         : (!transform.any_op, !transform.any_op) -> (!transform.any_op, !transform.any_op)
     %matmul_fused, %loop3 = transform.structured.fuse_into_containing_op %arg1 into %loop2
@@ -97,15 +97,15 @@ module attributes {transform.with_named_sequence} {
         transform.structured.fuse_into_containing_op %matmul_fused into %loop_second
         : (!transform.any_op, !transform.any_op) -> (!transform.any_op, !transform.any_op)
   
-    // Since outlining is currently only implemented for region-holding operations
-    // such as loops, use tiling to size 1 to materialize the outer loop that is
-    // going to be outlined.
-    %_0, %loop_third = transform.structured.tile_using_forall %tiled_second tile_sizes [1]
-        : (!transform.any_op) -> (!transform.any_op, !transform.any_op)
-    %_1, %outline_target = transform.structured.fuse_into_containing_op %matmul_fused_2 into %loop_third
-        : (!transform.any_op, !transform.any_op) -> (!transform.any_op, !transform.any_op)
-    %func, %call = transform.loop.outline %outline_target {func_name = "outlined"}
-        : (!transform.any_op) -> (!transform.any_op, !transform.op<"func.call">)
+    // // Since outlining is currently only implemented for region-holding operations
+    // // such as loops, use tiling to size 1 to materialize the outer loop that is
+    // // going to be outlined.
+    // %_0, %loop_third = transform.structured.tile_using_forall %tiled_second tile_sizes [1]
+    //     : (!transform.any_op) -> (!transform.any_op, !transform.any_op)
+    // %_1, %outline_target = transform.structured.fuse_into_containing_op %matmul_fused_2 into %loop_third
+    //     : (!transform.any_op, !transform.any_op) -> (!transform.any_op, !transform.any_op)
+    // %func, %call = transform.loop.outline %outline_target {func_name = "outlined"}
+    //     : (!transform.any_op) -> (!transform.any_op, !transform.op<"func.call">)
   
     transform.yield
   }
