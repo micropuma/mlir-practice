@@ -15,6 +15,16 @@
 #include "mlir/Dialect/Transform/IR/TransformDialect.h"
 #include "mlir/Dialect/Transform/Interfaces/TransformInterfaces.h"
 
+namespace mlir {
+class CallOpInterface;
+namespace func {
+class CallOp;
+} // namespace func
+namespace transform {
+class OperationType;
+} // namespace transform
+} // namespace mlir
+
 #define GET_OP_CLASSES
 #include "MyExtension.h.inc"
 

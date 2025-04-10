@@ -93,40 +93,62 @@ static void updateCallee(mlir::func::CallOp call, llvm::StringRef newTarget) {
 //   for the transformation is not satisfied and the payload IR has not been
 //   modified. The silenceable failure additionally carries a Diagnostic that
 //   can be emitted to the user.
-::mlir::DiagnosedSilenceableFailure mlir::transform::ChangeCallTargetOp::apply(
+// ::mlir::DiagnosedSilenceableFailure mlir::transform::ChangeCallTargetOp::apply(
+//     // The rewriter that should be used when modifying IR.
+//     ::mlir::transform::TransformRewriter &rewriter,
+//     // The list of payload IR entities that will be associated with the
+//     // transform IR values defined by this transform operation. In this case, it
+//     // can remain empty as there are no results.
+//     ::mlir::transform::TransformResults &results,
+//     // The transform application state. This object can be used to query the
+//     // current associations between transform IR values and payload IR entities.
+//     // It can also carry additional user-defined state.
+//     ::mlir::transform::TransformState &state) {
+
+//   // First, we need to obtain the list of payload operations that are associated
+//   // with the operand handle.
+//   auto payload = state.getPayloadOps(getCall());
+
+//   // Then, we iterate over the list of operands and call the actual IR-mutating
+//   // function. We also check the preconditions here.
+//   for (Operation *payloadOp : payload) {
+//     auto call = dyn_cast<::mlir::func::CallOp>(payloadOp);
+//     if (!call) {
+//       DiagnosedSilenceableFailure diag =
+//           emitSilenceableError() << "only applies to func.call payloads";
+//       diag.attachNote(payloadOp->getLoc()) << "offending payload";
+//       return diag;
+//     }
+
+//     updateCallee(call, getNewTarget());
+//   }
+
+//   // If everything went well, return success.
+//   return DiagnosedSilenceableFailure::success();
+// }
+
+// 在第三章中，我们引入了TransformEachOneTrait特性，因此apply方法需要改变
+::mlir::DiagnosedSilenceableFailure
+mlir::transform::ChangeCallTargetOp::applyToOne(
     // The rewriter that should be used when modifying IR.
     ::mlir::transform::TransformRewriter &rewriter,
-    // The list of payload IR entities that will be associated with the
-    // transform IR values defined by this transform operation. In this case, it
-    // can remain empty as there are no results.
-    ::mlir::transform::TransformResults &results,
+    // The single payload operation to which the transformation is applied.
+    ::mlir::func::CallOp call,
+    // The payload IR entities that will be appended to lists associated with
+    // the results of this transform operation. This list contains one entry per
+    // result.
+    ::mlir::transform::ApplyToEachResultList &results,
     // The transform application state. This object can be used to query the
     // current associations between transform IR values and payload IR entities.
     // It can also carry additional user-defined state.
     ::mlir::transform::TransformState &state) {
 
-  // First, we need to obtain the list of payload operations that are associated
-  // with the operand handle.
-  auto payload = state.getPayloadOps(getCall());
-
-  // Then, we iterate over the list of operands and call the actual IR-mutating
-  // function. We also check the preconditions here.
-  for (Operation *payloadOp : payload) {
-    auto call = dyn_cast<::mlir::func::CallOp>(payloadOp);
-    if (!call) {
-      DiagnosedSilenceableFailure diag =
-          emitSilenceableError() << "only applies to func.call payloads";
-      diag.attachNote(payloadOp->getLoc()) << "offending payload";
-      return diag;
-    }
-
-    updateCallee(call, getNewTarget());
-  }
+  // Dispatch to the actual transformation.
+  updateCallee(call, getNewTarget());
 
   // If everything went well, return success.
   return DiagnosedSilenceableFailure::success();
 }
-
 void mlir::transform::ChangeCallTargetOp::getEffects(
     ::llvm::SmallVectorImpl<::mlir::MemoryEffects::EffectInstance> &effects) {
   // Indicate that the `call` handle is only read by this operation because the
@@ -137,6 +159,9 @@ void mlir::transform::ChangeCallTargetOp::getEffects(
   // Indicate that the payload is modified by this operation.
   modifiesPayload(effects);
 }
+
+// In MyExtension.cpp.
+
 
 void registerMyExtension(::mlir::DialectRegistry &registry) {
   registry.addExtensions<MyExtension>();
