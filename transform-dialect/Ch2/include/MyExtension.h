@@ -28,5 +28,8 @@ class OperationType;
 #define GET_OP_CLASSES
 #include "MyExtension.h.inc"
 
+#define GET_TYPEDEF_CLASSES
+#include "MyExtensionTypes.h.inc"
+
 // Registers our Transform dialect extension.
 void registerMyExtension(::mlir::DialectRegistry &registry);

@@ -14,6 +14,7 @@
 #ifndef MY_EXTENSION
 #define MY_EXTENSION
 
+include "MyExtensionTypes.td"
 include "mlir/Dialect/Transform/IR/TransformDialect.td"
 include "mlir/Dialect/Transform/Interfaces/TransformInterfaces.td"
 include "mlir/Dialect/Transform/IR/TransformTypes.td"
@@ -66,5 +67,7 @@ def ChangeCallTargetOp : Op<Transform_Dialect, "my.change_call_target",
         ::mlir::transform::TransformState &state);
   }];
 }
+
+
 
 #endif // MY_EXTENSION

@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 //
 // This file defines Transform dialect extension operations used in the
-// Chapter 2 of the Transform dialect tutorial.
+// Chapter 3 of the Transform dialect tutorial.
 //
 //===----------------------------------------------------------------------===//
 
@@ -16,13 +16,12 @@
 #include "mlir/Dialect/SCF/IR/SCF.h"
 #include "mlir/Dialect/Transform/IR/TransformDialect.h"
 #include "mlir/Dialect/Transform/IR/TransformTypes.h"
-#include "mlir/Dialect/Transform/Interfaces/TransformInterfaces.h"
-#include "mlir/IR/DialectRegistry.h"
-#include "mlir/IR/Operation.h"
-#include "mlir/Interfaces/SideEffectInterfaces.h"
-#include "mlir/Support/LLVM.h"
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/StringRef.h"
+#include "mlir/IR/DialectImplementation.h"
+#include "mlir/Interfaces/CallInterfaces.h"
+
+// this type switch is super important, as typedef td will auto generate
+// typeswitch for typeprint
+#include "llvm/ADT/TypeSwitch.h"
 
 // Define a new transform dialect extension. This uses the CRTP idiom to
 // identify extensions.
@@ -72,10 +71,18 @@ void MyExtension::init() {
 #define GET_OP_LIST
 #include "MyExtension.cpp.inc"
       >();
+
+  // Register the types used by the transform operations. This is similar to
+  registerTypes<
+#define GET_TYPEDEF_LIST
+#include "MyExtensionTypes.cpp.inc"
+      >();
 }
 
 #define GET_OP_CLASSES
 #include "MyExtension.cpp.inc"
+#define GET_TYPEDEF_CLASSES
+#include "MyExtensionTypes.cpp.inc"
 
 static void updateCallee(mlir::func::CallOp call, llvm::StringRef newTarget) {
   call.setCallee(newTarget);
@@ -161,6 +168,33 @@ void mlir::transform::ChangeCallTargetOp::getEffects(
 }
 
 // In MyExtension.cpp.
+
+// The interface declares this method to verify constraints this type has on
+// payload operations. It returns the now familiar tri-state result.
+mlir::DiagnosedSilenceableFailure
+mlir::transform::CallOpInterfaceHandleType::checkPayload(
+    // Location at which diagnostics should be emitted.
+    mlir::Location loc,
+    // List of payload operations that are about to be associated with the
+    // handle that has this type.
+    llvm::ArrayRef<mlir::Operation *> payload) const {
+
+  // All payload operations are expected to implement CallOpInterface, check this.
+  for (Operation *op : payload) {
+    if (llvm::isa<mlir::CallOpInterface>(op))
+      continue;
+
+    // By convention, these verifiers always emit a silenceable failure since they are
+    // checking a precondition.
+    DiagnosedSilenceableFailure diag = emitSilenceableError(loc)
+        << "expected the payload operation to implement CallOpInterface";
+    diag.attachNote(op->getLoc()) << "offending operation";
+    return diag;
+  }
+
+  // If everything is okay, return success.
+  return DiagnosedSilenceableFailure::success();
+}
 
 
 void registerMyExtension(::mlir::DialectRegistry &registry) {

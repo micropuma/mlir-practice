@@ -104,7 +104,9 @@ module attributes {transform.with_named_sequence} {
         : (!transform.any_op) -> (!transform.any_op, !transform.any_op)
 
     // Rewrite the call target.
-    transform.my.change_call_target %call, "microkernel" : !transform.any_op
+    // test if call_op_interface succeed
+    %casted = transform.cast %call : !transform.any_op to !transform.my.call_op_interface
+    transform.my.change_call_target %casted, "microkernel" : !transform.any_op
 
     transform.yield
   }
