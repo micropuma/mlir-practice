@@ -82,7 +82,7 @@ void MyExtension::init() {
 #define GET_OP_CLASSES
 #include "MyExtension.cpp.inc"
 #define GET_TYPEDEF_CLASSES
-#include "MyExtensionTypes.cpp.inc"
+This#include "MyExtensionTypes.cpp.inc"
 
 static void updateCallee(mlir::func::CallOp call, llvm::StringRef newTarget) {
   call.setCallee(newTarget);
