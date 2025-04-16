@@ -1,3 +1,4 @@
 # ignore tvm source code
 tvm-dly/
 __pycache__/
+*.so
