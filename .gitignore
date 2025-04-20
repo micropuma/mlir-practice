@@ -2,3 +2,4 @@
 tvm-dly/
 __pycache__/
 *.so
+*.o
