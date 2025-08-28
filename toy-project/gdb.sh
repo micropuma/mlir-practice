@@ -1,0 +1,1 @@
+set args -emit=mlir-llvm --opt ../../test/toy/codegen.toy

@@ -1,0 +1,6 @@
+# RUN: dlyc -emit=jit %s
+# UNSUPPORTED: target={{.*windows.*}}
+
+def main() {
+ print([[1, 2], [3, 4]]);
+}

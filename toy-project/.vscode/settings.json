@@ -1,0 +1,9 @@
+{
+    "cmake.debugConfig": {
+        "args": [
+            "-emit=mlir-llvm",
+            "--opt",
+            "/home/douliyang/large/mlir-workspace/toy-project/test/toy/shape_inference.mlir"
+        ]
+    }
+}

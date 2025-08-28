@@ -1,0 +1,3 @@
+# RUN: dlyc %s -emit=ast 2>&1 | FileCheck-10 %s
+# CHECK-NOT: Assert
+# CHECK: Parse error

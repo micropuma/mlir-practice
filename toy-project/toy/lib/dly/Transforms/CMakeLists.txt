@@ -1,0 +1,1 @@
+add_mlir_library(DlyCombine DlyCombine.cpp DEPENDS MLIRDlyIncGen DlyCombineIncGen)
