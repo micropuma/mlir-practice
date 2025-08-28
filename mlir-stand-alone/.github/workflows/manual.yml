@@ -1,0 +1,13 @@
+# Name of the workflow
+name: Simple Workflow by LeonDou
+# Trigger of the workflow
+on:  
+  push:
+# Jobs in the workflow
+jobs:  
+  build:    
+    runs-on: ubuntu-latest    
+    steps:      
+      # Print the article title using `echo` command      
+      - name: Print article title        
+        run: echo 'CI/CD Pipelines with GitHub Actions'

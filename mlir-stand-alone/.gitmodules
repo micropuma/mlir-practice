@@ -1,0 +1,4 @@
+[submodule "runtime_lib/xaiengine/aie-rt"]
+	path = third_party/aie-rt
+	url = https://github.com/stephenneuendorffer/aie-rt.git
+	branch = phoenix_v2023.2
